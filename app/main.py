@@ -67,7 +67,7 @@ async def list_items(limit: int = 10, db: AsyncSession = Depends(get_db)):
 @app.get("/items/{item_id}", response_model=ItemModel)
 async def get_item(item_id: int, db: AsyncSession = Depends(get_db)):
     """Retrieves single item by its ID from the database"""
-    result = await db.execute(select(DBItem).where(DBItem.id)==item_id)
+    result = await db.execute(select(DBItem).where(DBItem.id==item_id))
     item = result.scalars().first()
     if item is None:
         raise HTTPException(status_code=404, detail=f"Item {item_id} not found.")
@@ -76,8 +76,8 @@ async def get_item(item_id: int, db: AsyncSession = Depends(get_db)):
 @app.delete("/items/{item_id}")
 async def delete_item(item_id: int, db: AsyncSession = Depends(get_db)):
     """Deletes any item by its ID in the database"""
-    result = await db.expunge(select(DBItem).where(DBItem.id == item_id))
-    item = result.scalars.first()
+    result = await db.execute(select(DBItem).where(DBItem.id == item_id))
+    item = result.scalars().first()
     if item is None:
         raise HTTPException(status_code=404, detail=f"Item {item_id} not found.")
     await db.delete(item)
